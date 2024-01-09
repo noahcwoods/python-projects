@@ -24,9 +24,9 @@ class Snake():
             return self.segments.append(snake)
         else:
             snake = Turtle(shape="square")
-            snake.color("white")
             snake.penup()
             snake.goto(self.segments[-1].xcor() - 20, 0)
+            snake.color("white")
             return self.segments.append(snake)
 
 
