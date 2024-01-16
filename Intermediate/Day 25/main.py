@@ -31,8 +31,12 @@ while not done:
     if len(guessed_states) == 50:
         done = True
 
-for state in states_data:
-    if state in guessed_states:
-        states_data.remove(state)
-export_data = pandas.DataFrame(states_data)
+#for state in states_data:
+#    if state in guessed_states:
+#        states_data.remove(state)
+test_data = [item for item in states_data if item not in guessed_states]
+export_data = pandas.DataFrame(test_data)
 export_data.to_csv("states_to_learn")
+
+
+
