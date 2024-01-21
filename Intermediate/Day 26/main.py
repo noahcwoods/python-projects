@@ -35,17 +35,27 @@ for (index, row) in student_data_frame.iterrows():
 # {new_key:new_value for (index, row) in df.iterrows()}
 # new_dict = {}
 
-#TODO 1. Create a dictionary in this format:
+
 with open("nato_phonetic_alphabet.csv") as f:
     reader = csv.reader(f)
     new_dict = dict(reader)
     print(new_dict)
 
-#TODO 2. Create a list of the phonetic code words from a word that the user inputs.
-user_word = input("Enter a word to convert: ")
-result = []
+completed = False
+while not completed:
 
-for letter in user_word:
-    if letter.upper() in new_dict.keys():
-        result.append(new_dict[letter.upper()])
+    user_word = input("Enter a word to convert: ")
+    result = []
+
+    for letter in user_word:
+        try:
+            result.append(new_dict[letter.upper()])
+        except KeyError:
+            print("Only letters in the alphabet please, try again...")
+            result = []
+            completed = False
+            break
+        else:
+            completed = True
+
 print(result)

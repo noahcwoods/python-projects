@@ -1,6 +1,8 @@
+from json import JSONDecodeError
 from tkinter import *
 from tkinter import messagebox
 import random
+import json
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
@@ -23,8 +25,6 @@ def on_generate_password():
     selectedSymbols = ""
     selectedNumbers = ""
 
-    # Eazy Level - Order not randomised:
-    # e.g. 4 letter, 2 symbol, 2 number = JduE&!91
     for num in range(nr_letters):
         selectedLetters += random.choice(letters)
     for num in range(nr_symbols):
@@ -45,19 +45,49 @@ def on_add_password():
     user_email = email_entry.get()
     user_password = password_entry.get()
     user_website = website_entry.get()
+    new_data = {
+        user_website: {
+            "email": user_email,
+            "password": user_password,
+        }
+    }
+
+    try:
+        file = open("password.json")
+    except FileNotFoundError:
+        file = open("password.json", "w")
+    finally:
+        file.close()
 
     if len(user_email) == 0 or len(user_password) == 0:
         messagebox.showerror("ERROR", "DONT LEAVE EMPTY FIELDS")
     else:
-        is_ok = messagebox.askokcancel(title=user_website,
-                                       message=f"Please confirm:\nEmail: {user_email}\nPassword: {user_password}")
-        if is_ok:
-            with open("password.txt", "a") as f:
-                f.write(f"{user_email} | {user_password} | {user_website}\n")
+        with open("password.json", "r") as f:
+            # json.dump(new_data, f, indent=4)
+            try:
+                data = json.load(f)
+                data.update(new_data)
+            except JSONDecodeError:
+                data = new_data
+        with open("password.json", "w") as f:
+            json.dump(data, f, indent=4)
 
-            website_entry.delete(0, END)
-            password_entry.delete(0, END)
+        website_entry.delete(0, END)
+        password_entry.delete(0, END)
 
+
+def on_search_password():
+    user_website = website_entry.get()
+
+    try:
+        with open("password.json", "r") as f:
+            data = json.load(f)
+            requested_password = data.get(user_website)["password"]
+            requested_username = data.get(user_website)["email"]
+    except TypeError as err2:
+        messagebox.showerror("ERROR", f"No Website password is saved for that website")
+    else:
+        messagebox.showinfo("Website Info", f"Username: {requested_username}\nPassword: {requested_password}")
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -84,6 +114,7 @@ password_entry = Entry(width=35)
 # Buttons
 generate_password = Button(text="Generate Password", width=14, command=on_generate_password)
 add_password = Button(text="Add", width=26, command=on_add_password)
+get_password = Button(text="Search", width=26, command=on_search_password)
 
 # Grid Layout
 canvas.grid(row=0, column=1, )
@@ -97,7 +128,8 @@ email_entry.grid(row=2, column=1, columnspan=2)
 password_entry.grid(row=3, column=1, columnspan=2)
 
 generate_password.grid(row=3, column=3)
-add_password.grid(row=4, column=1, columnspan=2)
+add_password.grid(row=4, column=1, columnspan=1)
+get_password.grid(row=4, column=2, columnspan=2)
 
 # Display
 window.mainloop()
