@@ -10,12 +10,20 @@ FLASHCARD_FRONT = PhotoImage(file="images/card_front.png")
 FLASHCARD_BACK = PhotoImage(file="images/card_back.png")
 CORRECT = PhotoImage(file="images/right.png")
 WRONG = PhotoImage(file="images/wrong.png")
-DATA = pd.read_csv("data/french_words.csv")
-
-to_learn = DATA.to_dict(orient="records")
 _card_front = True
 timer = None
 current_word = None
+
+try:
+    DATA = pd.read_csv("data/words_to_learn.csv")
+except pd.errors.EmptyDataError:
+    DATA = pd.read_csv("data/french_words.csv")
+except FileNotFoundError:
+    DATA = pd.read_csv("data/french_words.csv")
+
+to_learn = DATA.to_dict(orient="records")
+
+
 
 
 # WORD SELECTION
@@ -40,6 +48,11 @@ def new_word():
 
 # Correct Button Event
 def on_correct_selection():
+    global current_word
+    global to_learn
+    to_learn.remove(current_word)
+    data = pd.DataFrame(to_learn)
+    data.to_csv("data/words_to_learn.csv", index=False)
     new_word()
 
 
